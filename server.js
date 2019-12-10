@@ -33,6 +33,7 @@ function searchLatToLong(city) {
 }
 
 //--------weather
+const weatherDataArray = [];
 function Weather(weather, weatherDataResults) {
   this.search_query = weather;
   this.time = weatherDataResults.daily.data.time;
@@ -50,7 +51,10 @@ function searchWeather(weather) {
   const weatherData = require("./data/darksy.json");
   const weatherDataResults = weatherData.daily.data;
   const weatherObj = new Weather(weather, weatherDataResults);
-  return weatherObj;
+  for (let i = 0; i < weatherData.daily.data.length; i++) {
+    weatherDataArray.push(weatherObj);
+  }
+  return weatherDataArray;
 }
 
 app.get("*", (request, response) => {
