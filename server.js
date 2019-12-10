@@ -46,13 +46,14 @@ app.get("/weather", (request, response) => {
   console.log(weatherDataArray);
 });
 
-function searchWeather(weatherData) {
+function searchWeather() {
   const weatherData = require("./data/darksky.json");
+  const weatherDataResults = weatherData.daily.data;
   const weatherDataArray = [];
 
-  weatherData.daily.data.forEach(value => {
-    weatherDataArray.push(new Weather(weatherData.daily.data[value]));
-  });
+  for (let i = 0; i < weatherDataResults.length; i++) {
+    weatherDataArray.push(new Weather(weatherDataResults[i]));
+  }
   return weatherDataArray;
 }
 
