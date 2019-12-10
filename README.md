@@ -26,12 +26,12 @@ Actual time needed to complete: 35 mins
 
 ---
 
-Number and name of feature: repo set up
+Number and name of feature: weather
 
-Estimate of time needed to complete: 45
+Estimate of time needed to complete: 2hrs
 
-Start time: 9:50
+Start time: 11:40
 
-Finish time: 10:55
+Finish time: 1:00
 
-Actual time needed to complete: 1 hr 5
+Actual time needed to complete: 1 hr 20
