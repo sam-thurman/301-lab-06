@@ -10,6 +10,13 @@ app.use(cors());
 
 // Routes (for what? i dont know)
 
+function APIerror() {
+  return {
+    status: 500,
+    responseText: "Sorry, something went wrong"
+  };
+}
+
 //location
 //-----
 function Location(city, geoDataResults) {
@@ -21,7 +28,7 @@ function Location(city, geoDataResults) {
 
 app.get("/location", (request, response) => {
   let city = request.query.data;
-  let locationObj = searchLatToLong();
+  let locationObj = searchLatToLong(city);
   response.send(locationObj);
   alert(locationObj);
   console.log(locationObj);
@@ -32,19 +39,12 @@ function searchLatToLong(city) {
   const geoDataResults = geoData.results[0];
   const locationObj = new Location(city, geoDataResults);
 
-  let resultArr = [];
   for (let i = 0; i < geoDataResults; i++) {
-    if (
-      request.query.data.toLowerCase() ===
-      geoDataResults.long_name.toLowerCase()
-    ) {
+    if (city.toLowerCase() === geoDataResults.long_name.toLowerCase()) {
       return locationObj;
     }
   }
-  return {
-    status: 500,
-    responseText: "Sorry, something went wrong"
-  };
+  return APIerror();
 }
 
 //--------weather

@@ -35,3 +35,15 @@ Start time: 11:40
 Finish time: 1:00
 
 Actual time needed to complete: 1 hr 20
+
+---
+
+Number and name of feature: error message
+
+Estimate of time needed to complete: 1hr
+
+Start time: 1:20
+
+Finish time: 3:02
+
+Actual time needed to complete: inc
