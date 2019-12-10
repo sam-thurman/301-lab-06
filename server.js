@@ -49,7 +49,7 @@ app.get("/weather", (request, response) => {
 
 function searchWeather(weather) {
   const weatherData = require("./data/darksy.json");
-  const weatherDataResults = weatherData.daily.data;
+  const weatherDataResults = weatherData.daily.data[i];
   const weatherObj = new Weather(weather, weatherDataResults);
   for (let i = 0; i < weatherData.daily.data.length; i++) {
     weatherDataArray.push(weatherObj);
