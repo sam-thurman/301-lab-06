@@ -8,8 +8,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 app.use(cors());
 
-// Object constructor
-
+// Routes (for what? i dont know)
+//location
+//-----
 function Location(city, geoDataResults) {
   this.search_query = city;
   this.formatted_query = geoDataResults.formatted_address;
@@ -17,19 +18,11 @@ function Location(city, geoDataResults) {
   this.longitude = geoDataResults.geometry.location.lng;
 }
 
-// Routes (for what? i dont know)
-
 app.get("/location", (request, response) => {
   let city = request.query.data;
-
   let locationObj = searchLatToLong(city);
-  // const locationObj = {
-  //   "search_query": city,
-  //   "formatted_query": geoDataResults.formatted_address,
-  //   "latitude": geoDataResults.geometry.location.lat,
-  //   "longitude": geoDataResults.geometry.location.lng
-  // }
   response.send(locationObj);
+  console.log(locationObj);
 });
 
 function searchLatToLong(city) {
@@ -37,6 +30,27 @@ function searchLatToLong(city) {
   const geoDataResults = geoData.results[0];
   const locationObj = new Location(city, geoDataResults);
   return locationObj;
+}
+
+//--------weather
+function Weather(weather, weatherDataResults) {
+  this.search_query = weather;
+  this.time = weatherDataResults.daily.data.time;
+  this.forecast = weatherDataResults.daily.data.summary;
+}
+
+app.get("/weather", (request, response) => {
+  let weather = request.query.data;
+  let weatherObj = searchWeather(weather);
+  response.send(weatherObj);
+  console.log(weatherObj);
+});
+
+function searchWeather(weather) {
+  const weatherData = require("./data/darksy.json");
+  const weatherDataResults = weatherData.daily.data;
+  const weatherObj = new Weather(weather, weatherDataResults);
+  return weatherObj;
 }
 
 app.get("*", (request, response) => {

@@ -18,11 +18,11 @@ Number and name of feature: locations
 
 Estimate of time needed to complete: 2hr
 
-Start time: 11:10
+Start time: 11:00
 
-Finish time: 10:55
+Finish time: 11:36
 
-Actual time needed to complete: 1 hr 5
+Actual time needed to complete: 35 mins
 
 ---
 
