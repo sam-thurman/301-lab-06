@@ -23,6 +23,7 @@ app.get("/location", (request, response) => {
   let city = request.query.data;
   let locationObj = searchLatToLong();
   response.send(locationObj);
+  alert(locationObj);
   console.log(locationObj);
 });
 
@@ -33,7 +34,10 @@ function searchLatToLong(city) {
 
   let resultArr = [];
   for (let i = 0; i < geoDataResults; i++) {
-    if (city.toLowerCase() === geoDataResults.long_name.toLowerCase()) {
+    if (
+      request.query.data.toLowerCase() ===
+      geoDataResults.long_name.toLowerCase()
+    ) {
       return locationObj;
     }
   }
