@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 
 // Routes (for what? i dont know)
+
 //location
 //-----
 function Location(city, geoDataResults) {
@@ -29,7 +30,17 @@ function searchLatToLong(city) {
   const geoData = require("./data/geo.json");
   const geoDataResults = geoData.results[0];
   const locationObj = new Location(city, geoDataResults);
-  return locationObj;
+
+  let resultArr = [];
+  for (let i = 0; i < geoDataResults; i++) {
+    if (city.toLowerCase() === geoDataResults.long_name.toLowerCase()) {
+      return locationObj;
+    }
+  }
+  return {
+    status: 500,
+    responseText: "Sorry, something went wrong"
+  };
 }
 
 //--------weather
