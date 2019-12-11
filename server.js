@@ -1,13 +1,18 @@
 "use strict";
-
+// getting express library
 const express = require("express");
-require("dotenv").config();
-const cors = require("cors");
-
 const app = express();
-const PORT = process.env.PORT || 3001;
-app.use(cors());
 
+// getting our .env and our variables
+require("dotenv").config();
+const PORT = process.env.PORT || 3001;
+
+// cors is the police person of the server, tells who is allowed to talk to us
+const cors = require("cors");
+app.use(cors());
+//allows us to get real data
+
+const superagent = require("superagent");
 // Routes (for what? i dont know)
 
 function APIerror() {
@@ -19,32 +24,37 @@ function APIerror() {
 
 //location
 //-----
-function Location(city, geoDataResults) {
+function Location(city, geoData) {
   this.search_query = city;
-  this.formatted_query = geoDataResults.formatted_address;
-  this.latitude = geoDataResults.geometry.location.lat;
-  this.longitude = geoDataResults.geometry.location.lng;
+  this.formatted_query = geoData.results[0].formatted_address;
+  this.latitude = geoData.results[0].geometry.location.lat;
+  this.longitude = geoData.results[0].geometry.location.lng;
 }
 
 app.get("/location", (request, response) => {
-  let city = request.query.data;
-  let locationObj = searchLatToLong(city);
-  response.send(locationObj);
-  alert(locationObj);
-  console.log(locationObj);
+  try {
+    let city = request.query.data;
+    let locationObject = searchLatToLong(city);
+    console.log(locationObject);
+    response.send(locationObject);
+  } catch (error) {
+    console.error(error);
+    response.status(500).send("Sorry, something went wrong");
+  }
 });
 
 function searchLatToLong(city) {
-  const geoData = require("./data/geo.json");
-  const geoDataResults = geoData.results[0];
-  const locationObj = new Location(city, geoDataResults);
+  let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${city}&key=${process.env.GEOCODE_API_KEY}`;
 
-  for (let i = 0; i < geoDataResults; i++) {
-    if (city.toLowerCase() === geoDataResults.long_name.toLowerCase()) {
-      return locationObj;
-    }
-  }
-  return APIerror();
+  superagent.get(url).then(results => {
+    // console.log(results.body);
+    const locationObj = new Location(city, results.body);
+    console.log(
+      `${locationObj.formatted_query} has a latitude of: ${locationObj.latitude} and a longitude of: ${locationObj.longitude}`
+    );
+
+    return locationObj;
+  });
 }
 
 //--------weather
@@ -55,10 +65,15 @@ function Weather(weatherData) {
 }
 
 app.get("/weather", (request, response) => {
-  let weather = request.query.data;
-  let weatherObj = searchWeather(weather);
-  response.send(weatherObj);
-  console.log(weatherDataArray);
+  try {
+    let weather = request.query.data;
+    let weatherObj = searchWeather(weather);
+    // console.log(weatherObj);
+    response.send(weatherObj);
+  } catch (error) {
+    console.error(error);
+    response.status(500).send("Sorry, something went wrong");
+  }
 });
 
 function searchWeather() {
@@ -66,9 +81,9 @@ function searchWeather() {
   const weatherDataResults = weatherData.daily.data;
   const weatherDataArray = [];
 
-  for (let i = 0; i < weatherDataResults.length; i++) {
-    weatherDataArray.push(new Weather(weatherDataResults[i]));
-  }
+  weatherDataResults.map(weather => {
+    weatherDataArray.push(new Weather(weather));
+  });
   return weatherDataArray;
 }
 
