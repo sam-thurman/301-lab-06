@@ -73,3 +73,13 @@ Start time: 1:20
 Finish time: 3:02
 
 Actual time needed to complete: inc
+
+Number and name of feature: locations via google maps
+
+Estimate of time needed to complete: 2 hrs
+
+Start time: 8:45
+
+Finish time: 11:05
+
+Actual time needed to complete: 2 hr 20
