@@ -1,75 +1,74 @@
 "use strict";
-
+// getting express library
 const express = require("express");
-require("dotenv").config();
-const cors = require("cors");
-
 const app = express();
+
+// getting our .env and our variables
+require("dotenv").config();
 const PORT = process.env.PORT || 3001;
+
+// cors is the police person of the server, tells who is allowed to talk to us
+const cors = require("cors");
 app.use(cors());
+//allows us to get real data
 
-// Routes (for what? i dont know)
+const superagent = require("superagent");
 
-function APIerror() {
-  return {
-    status: 500,
-    responseText: "Sorry, something went wrong"
-  };
-}
-
-//location
-//-----
-function Location(city, geoDataResults) {
-  this.search_query = city;
-  this.formatted_query = geoDataResults.formatted_address;
-  this.latitude = geoDataResults.geometry.location.lat;
-  this.longitude = geoDataResults.geometry.location.lng;
-}
+// ROUTES (for what? i dont know)
 
 app.get("/location", (request, response) => {
-  let city = request.query.data;
-  let locationObj = searchLatToLong(city);
-  response.send(locationObj);
-  alert(locationObj);
-  console.log(locationObj);
-});
-
-function searchLatToLong(city) {
-  const geoData = require("./data/geo.json");
-  const geoDataResults = geoData.results[0];
-  const locationObj = new Location(city, geoDataResults);
-
-  for (let i = 0; i < geoDataResults; i++) {
-    if (city.toLowerCase() === geoDataResults.long_name.toLowerCase()) {
-      return locationObj;
-    }
+  try {
+    let city = request.query.data;
+    let locationObj = searchLatToLong(city, response);
+  } catch (error) {
+    console.error(error);
+    response.status(500).send("Sorry, something went wrong");
   }
-  return APIerror();
+});
+// app.get("/location", searchLatToLong);
+
+app.get("/weather", searchWeather);
+
+app.get("/events", getEvents);
+
+//LOCATION
+
+function Location(request, geoData) {
+  this.search_query = request;
+  this.formatted_query = geoData.results[0].formatted_address;
+  this.latitude = geoData.results[0].geometry.location.lat;
+  this.longitude = geoData.results[0].geometry.location.lng;
 }
 
-//--------weather
+function searchLatToLong(request, response) {
+  let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request}&key=${process.env.GEOCODE_API_KEY}`;
+  superagent.get(url).then(results => {
+    const locationObj = new Location(request, results.body);
+    console.log(
+      `${locationObj.formatted_query} has a latitude of: ${locationObj.latitude} and a longitude of: ${locationObj.longitude}`
+    );
+    response.send(locationObj);
+  });
+}
+
+//WEATHER
 
 function Weather(weatherData) {
-  this.time = weatherData.time;
+  this.time = new Date(weatherData.time * 1000).toDateString();
   this.forecast = weatherData.summary;
 }
 
-app.get("/weather", (request, response) => {
-  let weather = request.query.data;
-  let weatherObj = searchWeather(weather);
-  response.send(weatherObj);
-  console.log(weatherDataArray);
-});
+function searchWeather(request, response) {
+  let url = `https://api.darksky.net/forecast/${process.env.DARKSKY_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+  let weatherArray = [];
 
-function searchWeather() {
-  const weatherData = require("./data/darksky.json");
-  const weatherDataResults = weatherData.daily.data;
-  const weatherDataArray = [];
-
-  for (let i = 0; i < weatherDataResults.length; i++) {
-    weatherDataArray.push(new Weather(weatherDataResults[i]));
-  }
-  return weatherDataArray;
+  superagent.get(url).then(results => {
+    results.body.daily.data.map(day => {
+      weatherArray.push(new Weather(day));
+    });
+    console.log(weatherArray);
+    response.send(weatherArray);
+  });
 }
 
 app.get("*", (request, response) => {
@@ -77,3 +76,27 @@ app.get("*", (request, response) => {
 });
 
 app.listen(PORT, () => console.log(`listening on port ${PORT}!`));
+
+// EVENTS
+// parse the json results before you work with it
+
+function Event(eventData) {
+  this.link = eventData.url;
+  this.name = eventData.title;
+  this.event_date = eventData.start_time;
+  this.summary = eventData.description;
+}
+
+function getEvents(request, response) {
+  let url = `http://api.eventful.com/json/events/search?location=${request.query.data.formatted_query}&app_key=${process.env.EVENTFUL_API_KEY}`;
+  let eventArr = [];
+  superagent.get(url).then(result => {
+    let eventsJson = JSON.parse(result.text).events.event;
+    // console.log(eventsJson);
+    eventsJson.map(event => {
+      eventArr.push(new Event(event));
+    });
+    console.log(eventArr);
+    response.send(eventArr);
+  });
+}
