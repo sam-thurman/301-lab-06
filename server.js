@@ -63,13 +63,15 @@ function searchLatToLong(request, response) {
     console.log(
       `${locationObj.formatted_query} has a latitude of: ${locationObj.latitude} and a longitude of: ${locationObj.longitude}`
     );
-    let sql = 'INSERT INTO location(formatted_query, latitude, longitude) VALUES ($1, $2, $3);';
+    let sql = 'INSERT INTO location(formatted_query, latitude, longitude, city) VALUES ($1, $2, $3, $4);';
     let safeValues = [
       locationObj.formatted_query,
       locationObj.latitude,
-      locationObj.longitude
+      locationObj.longitude,
+      locationObj.search_query
     ];
-    client.query(sql, safeValues);
+    client.query(sql, safeValues)
+
     response.send(locationObj);
   });
 }
@@ -116,6 +118,11 @@ function getEvents(request, response) {
     // console.log(eventArr);
     response.send(eventArr);
   });
+}
+
+
+function checkDataBase() {
+  let sql = 'SELECT * FROM location WHERE name=$1'
 }
 
 app.get("*", (request, response) => {

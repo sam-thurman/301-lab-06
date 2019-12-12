@@ -70,9 +70,11 @@ Estimate of time needed to complete: 1hr
 
 Start time: 1:20
 
-Finish time: 3:02
+Finish time: 3:20
 
-Actual time needed to complete: inc
+Actual time needed to complete: 2 hrs
+
+---
 
 Number and name of feature: locations via google maps
 
@@ -83,3 +85,24 @@ Start time: 8:45
 Finish time: 11:05
 
 Actual time needed to complete: 2 hr 20
+
+---
+
+
+
+
+
+
+---
+
+Number and name of feature: database
+
+Estimate of time needed to complete: 1 hr
+
+Start time: 9;00
+
+Finish time: 11:45
+
+Actual time needed to complete: 2 hr 45
+
+
