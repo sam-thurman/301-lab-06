@@ -25,6 +25,7 @@ client.on("error", err => console.error(err));
 app.get("/location", (request, response) => {
   try {
     let city = request.query.data;
+    checkDataBase(city);
     let locationObj = searchLatToLong(city, response);
   } catch (error) {
     console.error(error);
@@ -52,28 +53,37 @@ function Location(request, geoData) {
   this.longitude = geoData.body.results[0].geometry.location.lng;
 }
 
+
+
 function searchLatToLong(request, response) {
-  let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request}&key=${process.env.GEOCODE_API_KEY}`;
-  superagent.get(url).then(results => {
-    const locationObj = new Location(request, results);
-    // console.log(results.body);
-    console.log(typeof locationObj.latitude);
-    console.log("*************************");
+  let sql = 'SELECT * FROM location WHERE city=$1;';
+  let safeValues = [request];
+  client.query(sql, safeValues)
+    .then(results => {
+      if (results.rowCount > 0) {
+        response.send(results.rows[0])
+      } else {
 
-    console.log(
-      `${locationObj.formatted_query} has a latitude of: ${locationObj.latitude} and a longitude of: ${locationObj.longitude}`
-    );
-    let sql = 'INSERT INTO location(formatted_query, latitude, longitude, city) VALUES ($1, $2, $3, $4);';
-    let safeValues = [
-      locationObj.formatted_query,
-      locationObj.latitude,
-      locationObj.longitude,
-      locationObj.search_query
-    ];
-    client.query(sql, safeValues)
+        let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request}&key=${process.env.GEOCODE_API_KEY}`;
+        superagent.get(url).then(results => {
+          const locationObj = new Location(request, results);
 
-    response.send(locationObj);
-  });
+
+          let sql = 'INSERT INTO location(formatted_query, latitude, longitude, city) VALUES ($1, $2, $3, $4);';
+          let safeValues = [
+            locationObj.formatted_query,
+            locationObj.latitude,
+            locationObj.longitude,
+            locationObj.search_query
+          ];
+          client.query(sql, safeValues)
+
+
+          response.send(locationObj);
+        })
+      }
+
+    });
 }
 
 //WEATHER
@@ -121,9 +131,7 @@ function getEvents(request, response) {
 }
 
 
-function checkDataBase() {
-  let sql = 'SELECT * FROM location WHERE name=$1'
-}
+
 
 app.get("*", (request, response) => {
   response.status(404).send("Page not found");
