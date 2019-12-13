@@ -1,90 +1,31 @@
-"use strict";
+'use strict';
+//MODULES
 // getting express library
-const express = require("express");
+const express = require('express');
 const app = express();
 
 // getting our .env and our variables
-require("dotenv").config();
+require('dotenv').config();
 const PORT = process.env.PORT || 3001;
 
 // cors is the police person of the server, tells who is allowed to talk to us
-const cors = require("cors");
+const cors = require('cors');
 app.use(cors());
 
 //allows us to get real data
-const superagent = require("superagent");
+const superagent = require('superagent');
 
-//PG (maybe postgresql?)
-
-const pg = require("pg");
-const client = new pg.Client(process.env.DATABASE_URL);
-client.on("error", err => console.error(err));
+//modules for functions
+const handleLocation = require('./mod-lib/handleLocation')
+const client = require('./client')
 
 // ROUTES (for what? i dont know)
 
-app.get("/location", (request, response) => {
-  try {
-    let city = request.query.data;
-    checkDataBase(city);
-    let locationObj = searchLatToLong(city, response);
-  } catch (error) {
-    console.error(error);
-    response.status(500).send("Sorry, something went wrong");
-  }
-});
-// app.get("/location", searchLatToLong);
+app.get('/location', handleLocation);
 
-app.get("/weather", searchWeather);
+app.get('/weather', searchWeather);
 
-app.get("/events", getEvents);
-
-app.get("/add", (request, response) => {
-  // let formatted_query = request.query.formatted;
-  // let latitude = request.query.lat;
-  // let longitude = request.query.long;
-});
-
-//LOCATION
-
-function Location(request, geoData) {
-  this.search_query = request;
-  this.formatted_query = geoData.body.results[0].formatted_address;
-  this.latitude = geoData.body.results[0].geometry.location.lat;
-  this.longitude = geoData.body.results[0].geometry.location.lng;
-}
-
-
-
-function searchLatToLong(request, response) {
-  let sql = 'SELECT * FROM location WHERE city=$1;';
-  let safeValues = [request];
-  client.query(sql, safeValues)
-    .then(results => {
-      if (results.rowCount > 0) {
-        response.send(results.rows[0])
-      } else {
-
-        let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request}&key=${process.env.GEOCODE_API_KEY}`;
-        superagent.get(url).then(results => {
-          const locationObj = new Location(request, results);
-
-
-          let sql = 'INSERT INTO location(formatted_query, latitude, longitude, city) VALUES ($1, $2, $3, $4);';
-          let safeValues = [
-            locationObj.formatted_query,
-            locationObj.latitude,
-            locationObj.longitude,
-            locationObj.search_query
-          ];
-          client.query(sql, safeValues)
-
-
-          response.send(locationObj);
-        })
-      }
-
-    });
-}
+app.get('/events', getEvents);
 
 //WEATHER
 
@@ -101,13 +42,11 @@ function searchWeather(request, response) {
     results.body.daily.data.map(day => {
       weatherArray.push(new Weather(day));
     });
-    console.log(weatherArray);
     response.send(weatherArray);
   });
 }
 
 // EVENTS
-// parse the json results before you work with it
 
 function Event(eventData) {
   this.link = eventData.url;
@@ -130,11 +69,8 @@ function getEvents(request, response) {
   });
 }
 
-
-
-
-app.get("*", (request, response) => {
-  response.status(404).send("Page not found");
+app.get('*', (request, response) => {
+  response.status(404).send('Page not found');
 });
 
 client
@@ -143,3 +79,7 @@ client
     app.listen(PORT, () => console.log(`listening on port ${PORT}!`));
   })
   .catch(err => console.error(err));
+
+
+  // yelp---> you have to set the header! documentation on how to 
+  // do this in superagent documentation
