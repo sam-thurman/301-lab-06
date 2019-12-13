@@ -16,7 +16,7 @@ app.use(cors());
 const superagent = require('superagent');
 
 //modules for functions
-const handleLocation = require('./mod-lib/handleLocation')
+const handleLocation = require('./mod-lib/location/handleLocation')
 const client = require('./client')
 
 // ROUTES (for what? i dont know)
@@ -68,6 +68,16 @@ function getEvents(request, response) {
     response.send(eventArr);
   });
 }
+
+//MOVIES
+
+
+
+
+
+
+
+
 
 app.get('*', (request, response) => {
   response.status(404).send('Page not found');

@@ -2,7 +2,7 @@
 //MODULES
 const Location = require('./Location')
 const superagent = require('superagent')
-const client = require('../client')
+const client = require('../../client')
 
 function searchLatToLong(request, response) {
   let sql = 'SELECT * FROM location WHERE city=$1;';
