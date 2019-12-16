@@ -1,3 +1,4 @@
+// Sam T
 'use strict';
 //MODULES
 const searchLatToLong = require('./searchLatToLong');

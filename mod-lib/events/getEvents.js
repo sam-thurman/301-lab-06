@@ -1,3 +1,4 @@
+// Sam T
 'use strict';
 const superagent = require('superagent');
 const Event = require('./Event')

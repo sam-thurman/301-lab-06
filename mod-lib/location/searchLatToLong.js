@@ -1,3 +1,4 @@
+// Sam T
 'use strict';
 //MODULES
 const Location = require('./Location')
